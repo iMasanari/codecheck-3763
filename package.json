@@ -2,12 +2,12 @@
   "name": "sprint2-bot-advanced-challenge",
   "version": "1.0.0",
   "description": "Sprint2 advanced challenge",
-  "main": "index.js",
+  "main": "server.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test --recursive"
+    "test": "codecheck"
   },
   "repository": {
     "type": "git",
