@@ -19,21 +19,54 @@ console.log("Node app is running at localhost:" + port);
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({ server: server });
 
-wss.on('connection', (ws) => {
-    ws.on('message', (data) => {
+wss.on('connection', ws => {
+    ws.on('message', data => {
         var message = JSON.parse(data);
 
         console.log('message:', message);
 
-        wss.clients.forEach((client) => {
+        wss.clients.forEach(client => {
             client.send(JSON.stringify({
                 success: true,
                 type: 'message',
                 text: data
             }));
         });
+
+        var match = message.text.match(/^(?:bot\s|@bot\s|bot:)(\S+)\s?([\s\S]*)$/);
+
+        if (match && Bot.hasOwnProperty(match[1])) {
+            var data = JSON.stringify(Bot[match[1]].command(match[2]))
+
+            if (data != null) {
+                wss.clients.forEach(client => {
+                    client.send(data);
+                })
+            }
+        }
     });
     ws.on('close', function () {
         console.log('websocket connection close');
     });
 });
+
+var Bot = {
+    ping: {
+        description: 'bot ping: pongを返す',
+        command: () => ({
+            success: true,
+            type: 'bot',
+            text: 'pong'
+        })
+    },
+    help: {
+        description: 'bot help: コマンドの一覧を表示する',
+        command: () => ({
+            success: true,
+            type: 'bot',
+            text: Object.keys(Bot).map(
+                v => Bot[v].description || `bot ${v}`
+            ).join('\n')
+        })
+    }
+};

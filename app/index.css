@@ -49,4 +49,5 @@ body {
 .message {
     padding-left: 2%;
     display: inline-block;
+    white-space: pre;
 }

@@ -14,9 +14,11 @@ $(function () {
     });
     ws.onmessage = function (msg) {
         var resp = JSON.parse(msg.data);
+        var message = resp.type === 'bot' ? resp.text : JSON.parse(resp.text).text;
+        
         $('#messages').append(
             $('<li>').append(
-                $('<span class="message">').text(JSON.parse(resp.text).text)
+                $('<span class="message">').text(message)
             )
         );
     };
