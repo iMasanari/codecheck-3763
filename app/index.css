@@ -35,21 +35,36 @@ body {
     float: left;
     width: 50px;
     height: 30px;
-    background: rgb(130, 224, 255);
+    background: #46CDC8;
     border: 0;
     border-radius: 5px;
     margin-left: 10px;
+    color: #fff;
+    font-weight: bold;
 }
 .ul.messages {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
-.ul.messages li {
-    padding: 5px 10px;
-}
 .message {
-    padding-left: 2%;
+    display: flex;
+    align-items: flex-start;
+}
+.message.self {
+    flex-direction: row-reverse;
+}
+.message.self .message-text {
+    background: #46CDC8;
+    color: #fff;
+}
+.message-text {
     display: inline-block;
-    white-space: pre;
+    max-width: 60%;
+    padding: .5em 1em;
+    margin: .25em 10px;
+    border-radius: 1em;
+    background-color: #eee;
+    white-space: pre-wrap;
+    word-break: break-all;
 }

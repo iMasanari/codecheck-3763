@@ -29,18 +29,19 @@ wss.on('connection', ws => {
             client.send(JSON.stringify({
                 success: true,
                 type: 'message',
-                text: data
+                text: data,
+                isSelf: client === ws
             }));
         });
 
         var match = message.text.match(/^(?:bot\s|@bot\s|bot:)(\S+)\s?([\s\S]*)$/);
 
         if (match && Bot.hasOwnProperty(match[1])) {
-            var data = JSON.stringify(Bot[match[1]].command(match[2]))
+            var data = Bot[match[1]].command(match[2], wss)
 
             if (data != null) {
                 wss.clients.forEach(client => {
-                    client.send(data);
+                    client.send(JSON.stringify(data));
                 })
             }
         }

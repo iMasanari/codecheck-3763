@@ -22,8 +22,8 @@ $(function() {
         var message = resp.type === 'bot' ? resp.text : JSON.parse(resp.text).text;
 
         $('#messages').append(
-            $('<li>').append(
-                $('<span class="message">').text(message)
+            $('<li class="message">').addClass(resp.isSelf ? 'self' : '').append(
+                $('<p class="message-text">').text(message)
             )
         );
     };
