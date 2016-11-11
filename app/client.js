@@ -1,31 +1,45 @@
 'use strict';
 
-var ws = new WebSocket(location.origin.replace(/^http/, 'ws'));
+(function() {
+    var ws = new WebSocket(location.origin.replace(/^http/, 'ws'));
+    var messages = document.getElementById('messages');
 
-$(function() {
-    var $m = $('#m');
+    /** @type {HTMLInputElement} */
+    var input = document.getElementById('message-input');
 
-    $m.focus();
+    var MessageTemp = {
+        message: document.createElement('li'),
+        text: document.createElement('p'),
+        init: function() {
+            this.text.className = 'message-text';
+            this.message.appendChild(this.text);
 
-    $('form').submit(function() {
-        var $this = $(this);
+            return this;
+        },
+        getClone: function(text, isSelf) {
+            this.text.textContent = text;
+            this.message.className = 'message' + (isSelf ? ' self' : '');
 
-        ws.send(JSON.stringify({ text: $m.val() }));
-        $m.val('');
-        $m.focus();
+            return this.message.cloneNode(true);
+        }
+    }.init();
 
-        return false;
-    });
+    input.focus();
+
+    document.getElementById('form').onsubmit = function(e) {
+        e.preventDefault();
+
+        ws.send(JSON.stringify({ text: input.value }));
+
+        input.value = '';
+        input.focus();
+    };
 
     ws.onmessage = function(msg) {
         var resp = JSON.parse(msg.data);
-        var message = resp.type === 'bot' ? resp.text : JSON.parse(resp.text).text;
+        var text = resp.type === 'bot' ? resp.text : JSON.parse(resp.text).text;
 
-        $('#messages').append(
-            $('<li class="message">').addClass(resp.isSelf ? 'self' : '').append(
-                $('<p class="message-text">').text(message)
-            )
-        );
+        messages.appendChild(MessageTemp.getClone(text, resp.isSelf));
     };
 
     ws.onerror = function(err) {
@@ -35,4 +49,4 @@ $(function() {
     ws.onclose = function close() {
         console.log('disconnected');
     };
-});
+})();
