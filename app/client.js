@@ -37,7 +37,7 @@
 
     ws.onmessage = function(msg) {
         var resp = JSON.parse(msg.data);
-        var text = resp.type === 'bot' ? resp.text : JSON.parse(resp.text).text;
+        var text = resp.text;
 
         messages.appendChild(MessageTemp.getClone(text, resp.isSelf));
     };

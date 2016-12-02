@@ -37,7 +37,7 @@ wss.on('connection', ws => {
             client.send(JSON.stringify({
                 success: true,
                 type: 'message',
-                text: data,
+                text: message.text,
                 isSelf: client === ws
             }));
         });
