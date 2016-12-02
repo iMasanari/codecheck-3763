@@ -26,6 +26,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "express": "^4.14.0",
+    "kuromoji": "^0.1.1",
     "ws": "^1.1.0"
   }
 }

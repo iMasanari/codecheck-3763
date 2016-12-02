@@ -6,6 +6,7 @@ var express = require('express');
 var app = express();
 var port = process.env.PORT || 3000;
 var token = require('./token.json');
+var kuromoji = require("kuromoji");
 
 //////////////////////
 // setting http
@@ -15,6 +16,11 @@ var server = http.createServer(app);
 server.listen(port);
 
 console.log("Node app is running at localhost:" + port);
+
+var tokenizer;
+kuromoji.builder({ dicPath: "node_modules/kuromoji/dict/" }).build(function (err, _tokenizer) {
+    tokenizer = _tokenizer;
+});
 
 ///////////////////
 // setting ws
@@ -96,6 +102,21 @@ var Bot = {
             };
 
             getRequest(option, callback);
+        }
+    },
+    yomi: {
+        description: 'bot yomi {keyword}: 読みを返す',
+        command: (arg, wss) => {
+            // tokenizer is ready
+            var path = tokenizer.tokenize(arg);
+            
+            wss.clients.forEach(client => {
+                client.send(JSON.stringify({
+                    success: true,
+                    type: 'bot',
+                    text: path.reduce((a, v) => `${a} ${v.reading || v.surface_form}`, '')
+                }));
+            });
         }
     }
 };
