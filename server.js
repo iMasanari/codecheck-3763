@@ -1,35 +1,35 @@
 'use strict'
 
-var http = require('http');
-var https = require('https');
-var express = require('express');
-var app = express();
-var port = process.env.PORT || 3000;
-var token = require('./token.json');
-var kuromoji = require("kuromoji");
+const http = require('http');
+const https = require('https');
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+const token = require('./token.json');
+const kuromoji = require("kuromoji");
 
 //////////////////////
 // setting http
 app.use(express.static('app'));
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 server.listen(port);
 
 console.log("Node app is running at localhost:" + port);
 
-var tokenizer;
+let tokenizer;
 kuromoji.builder({ dicPath: "node_modules/kuromoji/dict/" }).build(function (err, _tokenizer) {
     tokenizer = _tokenizer;
 });
 
 ///////////////////
 // setting ws
-var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({ server: server });
+const WebSocketServer = require('ws').Server;
+const wss = new WebSocketServer({ server: server });
 
 wss.on('connection', ws => {
     ws.on('message', data => {
-        var message = JSON.parse(data);
+        const message = JSON.parse(data);
 
         console.log('message:', message);
 
@@ -42,15 +42,15 @@ wss.on('connection', ws => {
             }));
         });
 
-        var match = message.text.match(/^(?:@?bot\s|bot:)(\S+)\s?([\s\S]*)$/);
+        const match = message.text.match(/^(?:@?bot\s|bot:)(\S+)\s?([\s\S]*)$/);
 
         if (match && Bot.hasOwnProperty(match[1])) {
-            var data = Bot[match[1]].command(match[2], wss)
+            const data = Bot[match[1]].command(match[2], wss);
 
             if (data) {
-                wss.clients.forEach(client => {
-                    client.send(JSON.stringify(data));
-                })
+                const json = JSON.stringify(data);
+
+                wss.clients.forEach(client => client.send(json));
             }
         }
     });
@@ -59,7 +59,7 @@ wss.on('connection', ws => {
     });
 });
 
-var Bot = {
+const Bot = {
     ping: {
         description: 'bot ping: pongを返す',
         command: () => ({
@@ -87,18 +87,18 @@ var Bot = {
             };
 
             const callback = res => {
-                const json = JSON.parse(res);
-                const text = (json.meta.code === 200) ?
-                    `「${json.data.name}」のオシャレ度は\n${separate(json.data.media_count)}です` :
-                    `${json.meta.error_type}\n${json.meta.error_message}`;
+                const parse = JSON.parse(res);
+                const text = (parse.meta.code === 200) ?
+                    `「${parse.data.name}」のオシャレ度は\n${separate(parse.data.media_count)}です` :
+                    `${parse.meta.error_type}\n${parse.meta.error_message}`;
 
-                wss.clients.forEach(client => {
-                    client.send(JSON.stringify({
-                        success: true,
-                        type: 'bot',
-                        text: text
-                    }));
+                const json = JSON.stringify({
+                    success: true,
+                    type: 'bot',
+                    text: text
                 });
+
+                wss.clients.forEach(client => client.send(json));
             };
 
             getRequest(option, callback);
@@ -108,15 +108,15 @@ var Bot = {
         description: 'bot yomi {keyword}: 読みを返す',
         command: (arg, wss) => {
             // tokenizer is ready
-            var path = tokenizer.tokenize(arg);
-            
-            wss.clients.forEach(client => {
-                client.send(JSON.stringify({
-                    success: true,
-                    type: 'bot',
-                    text: path.reduce((a, v) => `${a} ${v.reading || v.surface_form}`, '')
-                }));
-            });
+            const path = tokenizer.tokenize(arg);
+
+            const json = JSON.stringify({
+                success: true,
+                type: 'bot',
+                text: path.map(v => v.reading || v.surface_form).join(' ')
+            })
+
+            wss.clients.forEach(client => client.send(json))
         }
     }
 };

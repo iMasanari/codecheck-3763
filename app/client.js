@@ -1,48 +1,48 @@
-'use strict';
+(function () {
+    'use strict';
 
-(function() {
     var ws = new WebSocket(location.origin.replace(/^http/, 'ws'));
     var messages = document.getElementById('messages');
 
     /** @type {HTMLInputElement} */
     var input = document.getElementById('message-input');
 
-    var MessageTemp = {
-        message: document.createElement('li'),
-        text: document.createElement('p'),
-        init: function() {
-            this.text.className = 'message-text';
-            this.message.appendChild(this.text);
+    var createMessageElement = (function () {
+        var li = document.createElement('li');
+        var p = document.createElement('p');
 
-            return this;
-        },
-        getClone: function(text, isSelf) {
-            this.text.textContent = text;
-            this.message.className = 'message' + (isSelf ? ' self' : '');
+        p.className = 'message-text';
+        li.appendChild(p);
 
-            return this.message.cloneNode(true);
+        return function (text, isSelf) {
+            p.textContent = text;
+            li.className = 'message' + (isSelf ? ' self' : '');
+
+            return li.cloneNode(true);
         }
-    }.init();
+    })();
 
     input.focus();
 
-    document.getElementById('form').onsubmit = function(e) {
+    document.getElementById('form').onsubmit = function (e) {
         e.preventDefault();
 
-        ws.send(JSON.stringify({ text: input.value }));
+        if (input.value !== '') {
+            ws.send(JSON.stringify({ text: input.value }));
+        }
 
         input.value = '';
         input.focus();
     };
 
-    ws.onmessage = function(msg) {
+    ws.onmessage = function (msg) {
         var resp = JSON.parse(msg.data);
         var text = resp.text;
 
-        messages.appendChild(MessageTemp.getClone(text, resp.isSelf));
+        messages.appendChild(createMessageElement(text, resp.isSelf));
     };
 
-    ws.onerror = function(err) {
+    ws.onerror = function (err) {
         console.log("err", err);
     };
 
