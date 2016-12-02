@@ -1,23 +1,24 @@
 ## デプロイ情報
 #### サービスURL
-{http://example.com}
+https://codecheck-3763.herokuapp.com
 
 #### リポジトリURL
-{https://github.com/uuuuu/rrrrr}
+https://github.com/iMasanari/codecheck-3677
 
 #### 使用言語
-- {node / python / ruby / Go / etc.}
+- node
 
 #### 主なライブラリ
-- {ws / websockets / em-websocket / websocket / etc.}
+- ws
+- kuromoji
 
 ####  ホスティングサービス
-- {AWS / DigitalOcean / Sakura / Heroku / etc.}
+- Heroku
 
 ## 独自コマンドの実装
 #### 追加したコマンド
 ```
-bot {command} [parameters...]
+bot help
 ```
 
 #### コマンドの説明
@@ -29,3 +30,5 @@ bot {command} [parameters...]
 #### 創意工夫したポイント
 基本仕様では規定されていなかった、自分で考えた仕様や
 独自コマンドや作り込みの時にどんなコンセプトや考えを持って作ったのか？
+
+ちょっとhtmlも変えたくらい
